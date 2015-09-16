@@ -1,0 +1,73 @@
+Public Class Form1
+    Sub DecodeFile(ByVal src As String, ByVal des As String)
+        Dim src1 As String
+        Dim src2 As New IO.StreamReader(src)
+        src1 = src2.ReadToEnd
+        src2.Close()
+
+        Dim bt64 As Byte() = System.Convert.FromBase64String(src1)
+        If IO.File.Exists(des) Then
+            IO.File.Delete(des)
+        End If
+
+        Dim sw As New IO.FileStream(des, IO.FileMode.Create)
+        sw.Write(bt64, 0, bt64.Length)
+        sw.Close()
+    End Sub
+
+    Sub EncodeFile(ByVal srcFile As String, ByVal destfile As String)
+        Dim srcByte As Byte()
+        Dim desloc As String
+
+        Dim src2 As New IO.FileStream(srcFile, IO.FileMode.Open)
+        ReDim srcByte(src2.Length)
+        src2.Read(srcByte, 0, src2.Length)
+        src2.Close()
+
+        desloc = System.Convert.ToBase64String(srcByte)
+        Dim sw As New IO.StreamWriter(destfile, False)
+        sw.Write(desloc)
+        sw.Close()
+    End Sub
+
+    Private Sub Browse_Out(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button2.Click
+        Me.SaveFile.ShowDialog()
+        Me.OutDir.Text = Me.SaveFile.FileName
+    End Sub
+
+    Private Sub Browse_In(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button1.Click
+        Me.SaveFile.ShowDialog()
+        Me.InDir.Text = Me.SaveFile.FileName
+    End Sub
+
+    Private Sub Button4_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button4.Click
+        Try
+            If Me.OutDir.Text = Nothing Or Me.InDir.Text = Nothing Then
+                MsgBox("Specify Source and Destination Locations before Decoding!")
+                Exit Sub
+            End If
+
+            Me.DecodeFile(Me.InDir.Text, Me.OutDir.Text)
+            MsgBox("Decoded")
+        Catch ex As Exception
+            MsgBox(ex.ToString)
+        End Try
+    End Sub
+
+    Private Sub Button3_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button3.Click
+        Try
+            If Me.OutDir.Text = Nothing Or Me.InDir.Text = Nothing Then
+                MsgBox("Specify Source and Destination Locations before Encoding!")
+                Exit Sub
+            End If
+
+            Me.EncodeFile(Me.InDir.Text, Me.OutDir.Text)
+            MsgBox("Encoded")
+        Catch ex As Exception
+            MsgBox(ex.ToString)
+        End Try
+    End Sub
+
+    Private Sub SaveFile_FileOk(ByVal sender As System.Object, ByVal e As System.ComponentModel.CancelEventArgs) Handles SaveFile.FileOk
+    End Sub
+End Class
